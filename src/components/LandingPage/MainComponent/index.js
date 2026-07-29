@@ -58,10 +58,11 @@ function MainComponent() {
         </motion.div>
       </div>
       <div className="gradient-div">
-        <img src={gradient} className="gradient" />
+        <img src={gradient} className="gradient" alt="" />
         <motion.img
           src={iphone}
           className="iphone"
+          alt="CryptoTracker mobile app preview"
           initial={{ y: -10 }}
           animate={{ y: 10 }}
           transition={{

@@ -21,6 +21,8 @@ function Watchlist() {
     if (watchlist) {
       getData();
     }
+    // Initialize watchlist context once from localStorage.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getData = async () => {

@@ -57,6 +57,8 @@ function Compare() {
 
   useEffect(() => {
     getData();
+    // Initialize the default compare view once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getData = async () => {

@@ -28,6 +28,8 @@ function Coin() {
     if (id) {
       getData();
     }
+    // Load fresh coin data when the route asset changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const getData = async () => {
