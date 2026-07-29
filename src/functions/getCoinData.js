@@ -1,8 +1,9 @@
 import axios from "axios";
+import { API_BASE_URL } from "./apiConfig";
 
 export const getCoinData = (id, setError) => {
   const coin = axios
-    .get(`https://api.coingecko.com/api/v3/coins/${id}`)
+    .get(`${API_BASE_URL}/api/coins/${id}`)
     .then((response) => {
       if (response.data) {
         return response.data;

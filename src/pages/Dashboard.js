@@ -1,5 +1,4 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Header from "../components/Common/Header";
 import Loader from "../components/Common/Loader";
 import Search from "../components/Dashboard/Search";
@@ -8,6 +7,19 @@ import TabsComponent from "../components/Dashboard/Tabs";
 import PaginationComponent from "../components/Dashboard/Pagination";
 import TopButton from "../components/Common/TopButton";
 import Footer from "../components/Common/Footer/footer";
+import { useAsset } from "../context/AssetContext";
+import { get100Coins } from "../functions/get100Coins";
+
+const buildTopCoinsContext = (data) =>
+  data.slice(0, 8).map((coin) => ({
+    id: coin.id,
+    name: coin.name,
+    symbol: coin.symbol,
+    current_price: coin.current_price,
+    price_change_percentage_24h: coin.price_change_percentage_24h,
+    market_cap: coin.market_cap,
+    total_volume: coin.total_volume,
+  }));
 
 function Dashboard() {
   const [coins, setCoins] = useState([]);
@@ -15,28 +27,42 @@ function Dashboard() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [paginatedCoins, setPaginatedCoins] = useState([]);
+  const { setActiveAsset } = useAsset();
 
-  useEffect(() => {
-    // Get 100 Coins
-    getData();
-  }, []);
-
-  const getData = () => {
+  const getData = useCallback(() => {
     setLoading(true);
-    axios
-      .get(
-        "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false"
-      )
-      .then((response) => {
-        console.log("RESPONSE>>>", response.data);
-        setCoins(response.data);
-        setPaginatedCoins(response.data.slice(0, 10));
+    get100Coins()
+      .then((data) => {
+        if (!data) {
+          setLoading(false);
+          return;
+        }
+
+        setCoins(data);
+        setPaginatedCoins(data.slice(0, 10));
+        setActiveAsset({
+          id: "market",
+          name: "Crypto Market",
+          mode: "market",
+          topCoins: buildTopCoinsContext(data),
+        });
         setLoading(false);
       })
       .catch((error) => {
         console.log("ERROR>>>", error.message);
+        setLoading(false);
       });
-  };
+  }, [setActiveAsset]);
+
+  useEffect(() => {
+    setActiveAsset({
+      id: "market",
+      name: "Crypto Market",
+      mode: "market",
+    });
+    // Get 100 Coins
+    getData();
+  }, [getData, setActiveAsset]);
 
   const handleChange = (e) => {
     setSearch(e.target.value);
