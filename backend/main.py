@@ -29,6 +29,7 @@ FRONTEND_ORIGINS = [
     for origin in os.getenv("FRONTEND_ORIGIN", "http://localhost:3000").split(",")
     if origin.strip()
 ]
+FRONTEND_ORIGIN_REGEX = os.getenv("FRONTEND_ORIGIN_REGEX") or None
 
 CRYPTO_NEWS_FEEDS = [
     {"source": "Cointelegraph", "url": "https://cointelegraph.com/rss"},
@@ -44,6 +45,7 @@ app = FastAPI(title="AI Coin Tracker Advisor API", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=FRONTEND_ORIGINS,
+    allow_origin_regex=FRONTEND_ORIGIN_REGEX,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
