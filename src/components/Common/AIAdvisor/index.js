@@ -646,7 +646,7 @@ function AIAdvisor() {
       if (error.name !== "AbortError") {
         replaceAssistantMessage(
           assistantMessage.id,
-          "I could not reach the AI Advisor backend. Start FastAPI on port 8000 and make sure backend/.env has GROQ_API_KEY."
+          `I could not reach the AI Advisor backend at ${API_BASE_URL}. Check that the Render service is live and that its environment variables include GROQ_API_KEY.`
         );
       }
     } finally {
