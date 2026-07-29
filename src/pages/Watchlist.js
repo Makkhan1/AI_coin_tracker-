@@ -2,13 +2,22 @@ import React, { useEffect, useState } from "react";
 import Button from "../components/Common/Button";
 import Header from "../components/Common/Header";
 import TabsComponent from "../components/Dashboard/Tabs";
+import { useAsset } from "../context/AssetContext";
 import { get100Coins } from "../functions/get100Coins";
 
 function Watchlist() {
   const watchlist = JSON.parse(localStorage.getItem("watchlist"));
   const [coins, setCoins] = useState([]);
+  const { setActiveAsset } = useAsset();
 
   useEffect(() => {
+    setActiveAsset({
+      id: "watchlist",
+      name: "Watchlist",
+      mode: "watchlist",
+      watchlistAssets: [],
+    });
+
     if (watchlist) {
       getData();
     }
@@ -17,7 +26,22 @@ function Watchlist() {
   const getData = async () => {
     const allCoins = await get100Coins();
     if (allCoins) {
-      setCoins(allCoins.filter((coin) => watchlist.includes(coin.id)));
+      const savedCoins = allCoins.filter((coin) => watchlist.includes(coin.id));
+      setCoins(savedCoins);
+      setActiveAsset({
+        id: "watchlist",
+        name: "Watchlist",
+        mode: "watchlist",
+        watchlistAssets: savedCoins.slice(0, 10).map((coin) => ({
+          id: coin.id,
+          name: coin.name,
+          symbol: coin.symbol,
+          current_price: coin.current_price,
+          price_change_percentage_24h: coin.price_change_percentage_24h,
+          market_cap: coin.market_cap,
+          total_volume: coin.total_volume,
+        })),
+      });
     }
   };
 

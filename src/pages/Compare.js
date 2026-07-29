@@ -11,6 +11,7 @@ import { getCoinData } from "../functions/getCoinData";
 import { getPrices } from "../functions/getPrices";
 import { settingChartData } from "../functions/settingChartData";
 import { settingCoinObject } from "../functions/settingCoinObject";
+import { useAsset } from "../context/AssetContext";
 
 function Compare() {
   const [allCoins, setAllCoins] = useState([]);
@@ -28,6 +29,31 @@ function Compare() {
     labels: [],
     datasets: [],
   });
+  const { setActiveAsset } = useAsset();
+
+  const toAdvisorAsset = (data) => ({
+    id: data?.id,
+    name: data?.name,
+    symbol: data?.symbol,
+    current_price: data?.current_price ?? data?.market_data?.current_price?.usd,
+    price_change_percentage_24h:
+      data?.price_change_percentage_24h ??
+      data?.market_data?.price_change_percentage_24h,
+    market_cap: data?.market_cap ?? data?.market_data?.market_cap?.usd,
+    total_volume: data?.total_volume ?? data?.market_data?.total_volume?.usd,
+  });
+
+  const setCompareAssetContext = (firstCoin, secondCoin) => {
+    const first = toAdvisorAsset(firstCoin);
+    const second = toAdvisorAsset(secondCoin);
+
+    setActiveAsset({
+      id: "compare",
+      name: `${first.name || crypto1} vs ${second.name || crypto2}`,
+      mode: "compare",
+      comparedAssets: [first, second],
+    });
+  };
 
   useEffect(() => {
     getData();
@@ -42,6 +68,7 @@ function Compare() {
       const data2 = await getCoinData(crypto2);
       settingCoinObject(data1, setCoin1Data);
       settingCoinObject(data2, setCoin2Data);
+      setCompareAssetContext(data1, data2);
       if (data1 && data2) {
         // getPrices
         const prices1 = await getPrices(crypto1, days, priceType);
@@ -61,6 +88,7 @@ function Compare() {
       // fetch coin2 data
       const data2 = await getCoinData(newCrypto2);
       settingCoinObject(data2, setCoin2Data);
+      setCompareAssetContext(coin1Data, data2);
       // fetch prices again
       const prices1 = await getPrices(crypto1, days, priceType);
       const prices2 = await getPrices(newCrypto2, days, priceType);
@@ -72,6 +100,7 @@ function Compare() {
       // fetch coin1 data
       const data1 = await getCoinData(newCrypto1);
       settingCoinObject(data1, setCoin1Data);
+      setCompareAssetContext(data1, coin2Data);
       // fetch coin prices
       const prices1 = await getPrices(newCrypto1, days, priceType);
       const prices2 = await getPrices(crypto2, days, priceType);

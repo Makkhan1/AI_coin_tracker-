@@ -12,6 +12,7 @@ import { getCoinData } from "../functions/getCoinData";
 import { getPrices } from "../functions/getPrices";
 import { settingChartData } from "../functions/settingChartData";
 import { settingCoinObject } from "../functions/settingCoinObject";
+import { useAsset } from "../context/AssetContext";
 
 function Coin() {
   const { id } = useParams();
@@ -21,6 +22,7 @@ function Coin() {
   const [coin, setCoin] = useState({});
   const [days, setDays] = useState(30);
   const [priceType, setPriceType] = useState("prices");
+  const { setActiveAsset } = useAsset();
 
   useEffect(() => {
     if (id) {
@@ -32,8 +34,20 @@ function Coin() {
     setLoading(true);
     let coinData = await getCoinData(id, setError);
     console.log("Coin DATA>>>>", coinData);
-    settingCoinObject(coinData, setCoin);
     if (coinData) {
+      settingCoinObject(coinData, setCoin);
+      setActiveAsset({
+        id: coinData.id,
+        name: coinData.name,
+        symbol: coinData.symbol,
+        mode: "asset",
+        image: coinData.image?.large,
+        current_price: coinData.market_data?.current_price?.usd,
+        price_change_percentage_24h:
+          coinData.market_data?.price_change_percentage_24h,
+        market_cap: coinData.market_data?.market_cap?.usd,
+        total_volume: coinData.market_data?.total_volume?.usd,
+      });
       const prices = await getPrices(id, days, priceType, setError);
       if (prices) {
         settingChartData(setChartData, prices);

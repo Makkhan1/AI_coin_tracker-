@@ -7,13 +7,33 @@ import StarOutlineIcon from "@mui/icons-material/StarOutline";
 import { saveItemToWatchlist } from "../../../functions/saveItemToWatchlist";
 import StarIcon from "@mui/icons-material/Star";
 import { removeItemToWatchlist } from "../../../functions/removeItemToWatchlist";
+import { useAsset } from "../../../context/AssetContext";
 
 function Grid({ coin, delay }) {
   const watchlist = JSON.parse(localStorage.getItem("watchlist"));
   const [isCoinAdded, setIsCoinAdded] = useState(watchlist?.includes(coin.id));
+  const { setActiveAsset } = useAsset();
+
+  const activateCoinContext = () => {
+    setActiveAsset({
+      id: coin.id,
+      name: coin.name,
+      symbol: coin.symbol,
+      mode: "asset",
+      image: coin.image,
+      current_price: coin.current_price,
+      price_change_percentage_24h: coin.price_change_percentage_24h,
+      market_cap: coin.market_cap,
+      total_volume: coin.total_volume,
+    });
+  };
 
   return (
-    <a href={`/coin/${coin.id}`}>
+    <a
+      href={`/coin/${coin.id}`}
+      onFocus={activateCoinContext}
+      onMouseEnter={activateCoinContext}
+    >
       <motion.div
         className={`grid ${coin.price_change_percentage_24h < 0 && "grid-red"}`}
         initial={{ opacity: 0, y: 50 }}
